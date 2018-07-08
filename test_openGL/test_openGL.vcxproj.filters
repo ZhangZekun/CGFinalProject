@@ -36,6 +36,9 @@
     <ClCompile Include="hw7_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="loadModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -45,6 +48,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modelcamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,6 +74,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="hw7_get_depth_map.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="1.model_loading.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="1.model_loading.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="skyShader.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="skyShader.fs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -8,13 +8,13 @@
 #include <sstream>
 #include <iostream>
 
-class Shader
+class CubeShader
 {
 public:
 	unsigned int ID;
 	// constructor generates the shader on the fly
 	// ------------------------------------------------------------------------
-	Shader(const char* vertexPath, const char* fragmentPath)
+	CubeShader(const char* vertexPath, const char* fragmentPath)
 	{
 		// 1. 从参数路径读取顶点着色器和片段着色器的代码
 		std::string vertexCode;

@@ -8,6 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Shader.h"
 #include "Camera.h"
+#include "ModelShader.h"
+#include "model.h"
 #include<string>
 #include<math.h>
 #include <iostream>
@@ -17,7 +19,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void hw7_processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
-void renderScene(const Shader &shader);
+void renderScene(const CubeShader &shader, Shader& ModelShader, Model& ourModel);
 void renderCube();
 void initPlaneVAO();
 void getMapVBOAndTexture(unsigned int& depthMapFBO, unsigned int& depthMap, const unsigned int SHADOW_WIDTH, const unsigned int SHADOW_HEIGHT);
@@ -47,7 +49,7 @@ unsigned int planeVBO;
 unsigned int woodTexture;
 unsigned int wall_red_Texture;
 unsigned int wall_grey_Texture;
-
+unsigned int sky_Texture;
 int main()
 {
 	// 初始化和创建窗口
@@ -75,13 +77,18 @@ int main()
 	}
 	glEnable(GL_DEPTH_TEST);
 	// 创建一个自定义Shader，读入着色器文件
-	Shader lightShader("task6_verShader_lamp.txt", "task6_fraShader_lamp.txt");
-	Shader sceneShader("hw7_shadow_map.vs", "hw7_shadow_map.fs");
-	Shader getDepthMapShader("hw7_get_depth_map.vs", "hw7_get_depth_map.fs");
+	CubeShader lightShader("task6_verShader_lamp.txt", "task6_fraShader_lamp.txt");
+	CubeShader sceneShader("hw7_shadow_map.vs", "hw7_shadow_map.fs");
+	CubeShader getDepthMapShader("hw7_get_depth_map.vs", "hw7_get_depth_map.fs");
+	CubeShader skyShader("skyShader.vs", "skyShader.fs");
+
+	Shader ModelShader("1.model_loading.vs", "1.model_loading.fs");		
+	Model ourModel("./YHY_JZ_DGM_05_LST_YSZND/YHY_JZ_DGM_05_LST_YSZND.obj");
 	//生成Plane的Buffer对象，并设置Plane的VAO
 	initPlaneVAO();
 	
 	woodTexture = loadTexture("./3.jpg");
+	sky_Texture = loadTexture("./sk3.jpg");
 	wall_red_Texture = loadTexture("./wall_red.jpg");
 	wall_grey_Texture = loadTexture("./wall_grey.jpg");
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
@@ -118,11 +125,13 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
-		float near_plane = 1.0f, far_plane = 105.5f;
+		float near_plane = 1.0f, far_plane = 100.5f;
 		//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
 		if (orthoProjection) {
 			lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -141,16 +150,31 @@ int main()
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, woodTexture);
-		renderScene(getDepthMapShader);
+		renderScene(getDepthMapShader, ModelShader, ourModel);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		// reset viewport
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//render sky
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, sky_Texture);
+		skyShader.use();
+		glm::mat4 skyProjection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 skyView = camera.GetViewMatrix();
+		glm::mat4 skyModel;
+		//		skyModel = glm::scale(skyModel, glm::vec3(0.2f));
+		skyModel = glm::translate(skyModel, camera.Position);
+		skyShader.setMat4("model", skyModel);
+		skyShader.setMat4("projection", skyProjection);
+		skyShader.setMat4("view", skyView);
+		renderCube();
+
 		// 2. render scene as normal using the generated depth/shadow map  
 		// --------------------------------------------------------------
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		sceneShader.use();
 		glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
@@ -164,7 +188,7 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, woodTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
-		renderScene(sceneShader);
+		renderScene(sceneShader, ModelShader, ourModel);
 
 		// 3. render the lamp
 		lightShader.use();
@@ -305,7 +329,7 @@ unsigned int loadTexture(const char *path) {
 }
 
 
-void renderScene(const Shader &shader)
+void renderScene(const CubeShader &shader,  Shader& modelShader, Model& ourModel)
 {
 	glm::mat4 model;
 	shader.setMat4("model", model);
@@ -374,18 +398,19 @@ void renderScene(const Shader &shader)
 	shader.setMat4("model", model);
 	renderCube();
 
-
+	// render the loaded model
+	modelShader.use();
+	glm::mat4 projection = glm::perspective(45.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera.GetViewMatrix();
+	modelShader.setMat4("projection", projection);
+	modelShader.setMat4("view", view);
+	
 	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.setMat4("model", model);
-	renderCube();
-	model = glm::mat4();
-	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
-	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.25));
-	shader.setMat4("model", model);
-	renderCube();
+	model = glm::translate(model, glm::vec3(15.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+	model = glm::rotate(model, 270.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+//	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+	modelShader.setMat4("model", model);
+	ourModel.Draw(modelShader);
 }
 
 unsigned int cubeVAO = 0;
