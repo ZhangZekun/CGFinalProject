@@ -1,0 +1,13 @@
+﻿  hw7_main.cpp
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\shader.h(51): warning C4101: 'infoLog': unreferenced local variable
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\shader.h(50): warning C4101: 'success': unreferenced local variable
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(107): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(253): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(254): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(262): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(263): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\study_resource\3_2\cg\project\test_opengl - 副本\test_opengl\hw7_main.cpp(271): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  GLM: perspective function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+  GLM: rotate function taking degrees as a parameter is deprecated. #define GLM_FORCE_RADIANS before including GLM headers to remove this message.
+  test_openGL.vcxproj -> D:\study_resource\3_2\CG\project\test_openGL - 副本\Debug\test_openGL.exe
+  test_openGL.vcxproj -> D:\study_resource\3_2\CG\project\test_openGL - 副本\Debug\test_openGL.pdb (Partial PDB)
